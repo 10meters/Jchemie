@@ -5,6 +5,7 @@ import project3_utility as util
 
 
 st.set_page_config(page_title="Sales Overview", page_icon="🏠")
+st.set_page_config(layout="wide")
 
 # Change working directory to the folder where this script is located
 cwd = os.path.dirname(os.path.abspath(__file__))
@@ -25,7 +26,7 @@ with title_col:
 
 
 # Load data
-df = pd.read_csv("data/SALES ORDER 2024.csv").dropna(axis=1, how='all')
+df = pd.read_csv("data/SALES ORDER.csv").dropna(axis=1, how='all')
 df = util.clean_data(df)
 
 
