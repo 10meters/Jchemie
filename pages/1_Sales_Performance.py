@@ -4,19 +4,9 @@ import os
 import project3_utility as util
 
 
-st.set_page_config(page_title="Sales Overview", page_icon="🏠")
+st.set_page_config(page_title="Sales Overview", page_icon="📈")
 st.set_page_config(layout="wide")
 
-# Change working directory to the folder where this script is located
-cwd = os.path.dirname(os.path.abspath(__file__))
-os.chdir(cwd)
-
-# Make wide
-st.set_page_config(
-    page_title="Sales Dashboard",
-    layout="wide",  # makes the app span the full width
-    initial_sidebar_state="expanded"
-)
 
 # TITLE + Frequency dropdown
 title_col, freq_col = st.columns([3, 1])

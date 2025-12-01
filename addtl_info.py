@@ -73,3 +73,53 @@ def convert_sales_file_to_df(path):
         .drop(columns=["Business Name", "Matched Name"])
  
     return df
+
+
+import pandas as pd
+
+def convert_collections_to_df(file_path):
+    df = pd.read_excel(file_path, header=None)
+    required = {'Date', 'Type', 'OR #', 'Customer Name', 'PM', 'Amount', 'Check Amount'}
+
+    for i, row in df.iterrows():
+        clean_row = [str(x).strip() for x in row]
+
+        if required.issubset(clean_row):
+            df.columns = clean_row
+            df = df.loc[:, ~df.columns.duplicated()]  # keep first instance only
+            df = df.iloc[i + 1:]
+            df = df.dropna(subset=['OR #', 'Amount'])
+
+            df['Customer Name'] = df['Customer Name'].str.replace(
+                r'^(?:\s*(?:-+|\*|\d+\s*-\s*)*)|(?:-+\s*)$', '', regex=True
+            ).str.strip()
+
+            df = df[["Date", "Type", "OR #", "Customer Name", "PM", "Check Amount"]]
+
+            return df.dropna(subset=['Type', 'OR #'])
+
+    raise ValueError("Target headers not found in file")
+
+
+def convert_receivables_to_df(file_path):
+    df = pd.read_excel(file_path, header=None)
+    required = {'Date', 'Type', 'SI #', 'Customer Name', 'Amount Due', 'Paid Amount', 'Balance'}
+
+    for i, row in df.iterrows():
+        clean_row = [str(x).strip() for x in row]
+
+        if required.issubset(clean_row):
+            df.columns = clean_row
+            df = df.loc[:, ~df.columns.duplicated()]  # keep first instance only
+            df = df.iloc[i + 1:]
+
+
+            df['Customer Name'] = df['Customer Name'].str.replace(
+                r'^(?:\s*(?:-+|\*|\d+\s*-\s*)*)|(?:-+\s*)$', '', regex=True
+            ).str.strip()
+
+            df = df[["Date", "Type", "SI #", "Customer Name", "Amount Due", "Paid Amount", "Balance"]]
+            
+            return df.dropna(subset=['SI #', 'Customer Name'])
+
+    raise ValueError("Target headers not found in file")
