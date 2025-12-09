@@ -2,6 +2,7 @@ import pandas as pd
 import math
 import os
 from rapidfuzz import process, fuzz
+import re
 
 def normalize(x):
     if x is None:
@@ -123,3 +124,159 @@ def convert_receivables_to_df(file_path):
             return df.dropna(subset=['SI #', 'Customer Name'])
 
     raise ValueError("Target headers not found in file")
+
+def convert_summary_to_df(file_path):
+    # Read ALL sheets (sheet_name=None). 
+    # Use header=None to manually find the correct header row later.
+    all_sheets = pd.read_excel(file_path, sheet_name=None, header=None)
+    
+    processed_dfs = []
+
+    for sheet_name, raw_df in all_sheets.items():
+        # 1. Find the header row by looking for "Product Code" in the values
+        # We loop through rows until we find the identifier
+        header_idx = None
+        for idx, row in raw_df.iterrows():
+            # Convert row to string to search for key column name
+            if "Product Code" in row.astype(str).values:
+                header_idx = idx
+                break
+        
+        # If this sheet doesn't have the header, skip it
+        if header_idx is None:
+            continue
+
+        # 2. Slice the dataframe: Data starts 1 row after header_idx
+        df = raw_df.iloc[header_idx + 1:].copy()
+        df.columns = raw_df.iloc[header_idx]
+
+        # 3. Clean the data
+        # Drop rows where Product Code is empty (blank lines)
+        df = df.dropna(subset=['Product Code'])
+        
+        # Remove the 'GRAND TOTAL' row
+        df = df[~df['Product Code'].astype(str).str.contains('GRAND TOTAL', case=False, na=False)]
+
+        # 4. Add Month-Year column
+        # Convert sheet name (e.g. "January 2025") to datetime
+        # This defaults to the 1st of the month automatically for "Month Year" strings
+        df['Month-Year'] = pd.to_datetime(sheet_name)
+
+        processed_dfs.append(df)
+
+    # 5. Combine all sheets
+    return pd.concat(processed_dfs, ignore_index=True)
+
+import pandas as pd
+
+def convert_customer_masterlist_to_df(file_path):
+    # Read ALL sheets, no header initially
+    all_sheets = pd.read_excel(file_path, sheet_name=None, header=None)
+    
+    processed_dfs = []
+
+    for sheet_name, raw_df in all_sheets.items():
+        # 1. Extract "Type" from Cell A2 (Row 1, Col 0)
+        # We grab this before finding the header.
+        # If the sheet is too small, use a placeholder.
+        if raw_df.shape[0] > 1:
+            customer_type = raw_df.iloc[1, 0]
+        else:
+            customer_type = "Unknown"
+
+        # 2. Find the header row dynamically
+        header_idx = None
+        for idx, row in raw_df.iterrows():
+            if "Customer's Name" in row.astype(str).values:
+                header_idx = idx
+                break
+        
+        if header_idx is None:
+            continue
+
+        # 3. Slice and set header
+        df = raw_df.iloc[header_idx + 1:].copy()
+        df.columns = raw_df.iloc[header_idx]
+
+        # 4. Clean Data
+        df = df.dropna(subset=["Customer's Name"])
+
+        # 5. Add Metadata Columns
+        df['Account'] = sheet_name       # Sheet Name -> Account
+        df['Type'] = customer_type       # Cell A2 -> Type
+        
+        processed_dfs.append(df)
+
+    # 6. Combine
+    return pd.concat(processed_dfs, ignore_index=True)
+
+
+def process_raw_materials_stock_df(file_path):
+    # Read ONLY the first sheet
+    raw_df = pd.read_excel(file_path, sheet_name=0, header=None)
+    
+    # 1. Extract "Inventory Date" from metadata
+    inventory_date = None
+    for idx, row in raw_df.iloc[:20].iterrows():
+        row_text = " ".join([str(val) for val in row if pd.notna(val)])
+        if "Running Inventory as of" in row_text:
+            match = re.search(r'(\d{1,2}/\d{1,2}/\d{4})', row_text)
+            if match:
+                inventory_date = pd.to_datetime(match.group(1))
+            break
+    
+    if inventory_date is None:
+        inventory_date = pd.to_datetime('today').normalize()
+
+    # 2. Find the header row dynamically
+    header_idx = None
+    key_col = "Product Code" 
+    
+    for idx, row in raw_df.iterrows():
+        row_str = row.astype(str).values
+        if "Product Code" in row_str:
+            header_idx = idx
+            key_col = "Product Code"
+            break
+        elif "ITEM" in row_str:
+            header_idx = idx
+            key_col = "ITEM"
+            break
+    
+    if header_idx is None:
+        return pd.DataFrame()
+
+    # 3. Slice and set header
+    df = raw_df.iloc[header_idx + 1:].copy()
+    df.columns = raw_df.iloc[header_idx]
+
+    # 4. Clean Data
+    df = df.dropna(subset=[key_col])
+    df = df[~df[key_col].astype(str).str.contains('GRAND TOTAL', case=False, na=False)]
+
+    # 5. Category Header Logic
+    check_col = 'Unit' if 'Unit' in df.columns else 'UNIT'
+    
+    if check_col in df.columns:
+        # Identify headers: Key exists, but Unit is NaN
+        is_cat_header = df[check_col].isna()
+        
+        # Create Category column from header rows
+        df['Category'] = df[key_col].where(is_cat_header)
+        
+        # Forward fill the category name down to items
+        df['Category'] = df['Category'].ffill()
+        
+        # Fill any remaining NaNs (items before the first header) with "OTHERS"
+        df['Category'] = df['Category'].fillna('OTHERS')
+        
+        # Remove the header rows themselves
+        df = df[~is_cat_header]
+    else:
+        # If we can't detect categories via Unit column, label all as OTHERS
+        df['Category'] = 'OTHERS'
+
+    # 6. Add Inventory Date
+    df['Inventory Date'] = inventory_date
+    
+    return df
