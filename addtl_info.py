@@ -66,9 +66,8 @@ def convert_sales_file_to_df(path):
     matches = df_raw.index[df_raw.apply(row_matches, axis=1)].tolist()
     if not matches:
         raise ValueError("Header row not found")
-    header_row = matches[0]
 
-    df = read_excel_file(path, header=header_row)
+
     df = df[[c for c in df.columns if normalize(c) != ""]]
     df = df[["Date", "SO  #", "Customer Name", "Total Amount"]]
 
