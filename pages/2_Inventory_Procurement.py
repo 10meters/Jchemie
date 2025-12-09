@@ -28,7 +28,6 @@ if not st.session_state.logged_in:
     if not st.session_state.logged_in:
         st.stop()
 
-@st.cache_data
 def load_data():
     # Load data from the 'data' folder
     try:
