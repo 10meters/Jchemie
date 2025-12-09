@@ -80,7 +80,7 @@ def convert_sales_file_to_df(path):
         r'^(?:\s*(?:-+|\*|\d+\s*-\s*)*)|(?:-+\s*)$', '', regex=True
     ).str.strip()
 
-    customers = read_session_csv("data/CUSTOMERS_LIST.csv")
+    customers = pd.read_csv("data/CUSTOMERS_LIST.csv")
     if not customers.empty:
         customers["Business Name"] = customers["Business Name"].str.upper()
 
