@@ -17,9 +17,9 @@ def normalize(x):
 def convert_sales_file_to_df(path):
     if hasattr(path, "read"):
         data = BytesIO(path.read())
-        df = pd.read_excel(data, header=None, engine="openpyxl")
+        df = pd.read_excel(data, header=None, engine="xlrd")
     else:
-        df = pd.read_excel(path, header=None, engine="openpyxl")
+        df = pd.read_excel(path, header=None, engine="xlrd")
 
     raw=df
 
