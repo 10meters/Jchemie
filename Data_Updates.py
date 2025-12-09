@@ -3,13 +3,19 @@ import pandas as pd
 import addtl_info as util
 import os
 
-# Ask user for password
-password = st.text_input("Enter password:", type="password")
+# Initialize login state
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
-# Check against secret
-if password != st.secrets["APP_PASSWORD"]:
-    st.warning("Incorrect password")
-    st.stop()
+if not st.session_state.logged_in:
+    password = st.text_input("Enter password:", type="password")
+    if password:
+        if password == st.secrets["APP_PASSWORD"]:
+            st.session_state.logged_in = True
+            st.success("Login successful! Navigate to other pages via the sidebar.")
+        else:
+            st.error("Incorrect password")
+            st.stop()
 
 
 st.set_page_config(page_title="Add Sheets", page_icon="🏠")

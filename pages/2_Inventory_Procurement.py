@@ -5,6 +5,16 @@ import altair as alt
 # Set page config
 st.set_page_config(page_title="Inventory Dashboard", layout="wide")
 
+# Initialize login state if not already set
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+# Redirect to login if not logged in
+if not st.session_state.logged_in:
+    st.warning("Please log in to access this page.")
+    st.stop()
+
+
 @st.cache_data
 def load_data():
     # Load data from the 'data' folder

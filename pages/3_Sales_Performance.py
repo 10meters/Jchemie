@@ -8,6 +8,16 @@ st.set_page_config(page_title="Sales Overview", page_icon="📈")
 st.set_page_config(layout="wide")
 
 
+# Initialize login state if not already set
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+# Redirect to login if not logged in
+if not st.session_state.logged_in:
+    st.warning("Please log in to access this page.")
+    st.stop()
+
+
 # TITLE + Frequency dropdown
 title_col, freq_col = st.columns([3, 1])
 

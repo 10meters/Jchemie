@@ -5,6 +5,16 @@ import altair as alt
 
 st.set_page_config(page_title="Customer Overview", page_icon="🏠", layout="wide")
 
+# Initialize login state if not already set
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+# Redirect to login if not logged in
+if not st.session_state.logged_in:
+    st.warning("Please log in to access this page.")
+    st.stop()
+
+
 title_col, customer_selection = st.columns([1, 2])
 with title_col:
     st.title("Customer Management")
