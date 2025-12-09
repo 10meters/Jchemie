@@ -3,6 +3,14 @@ import pandas as pd
 import addtl_info as util
 import os
 
+# Ask user for password
+password = st.text_input("Enter password:", type="password")
+
+# Check against secret
+if password != st.secrets["APP_PASSWORD"]:
+    st.warning("Incorrect password")
+    st.stop()
+
 
 st.set_page_config(page_title="Add Sheets", page_icon="🏠")
 st.set_page_config(layout="wide")
