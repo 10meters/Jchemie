@@ -18,7 +18,8 @@ if not st.session_state.logged_in:
             st.success("Login successful!")
         else:
             st.error("Incorrect password")
-    st.stop()  # Stop rendering the rest of the page
+    if not st.session_state.logged_in:
+        st.stop()  # Only stop if login is still False
 
 @st.cache_data
 def load_data():
