@@ -88,9 +88,9 @@ import pandas as pd
 def convert_collections_to_df(file_path):
     if hasattr(file_path, "read"):
         data = BytesIO(file_path.read())
-        df = pd.read_excel(data, header=None)
+        df = pd.read_excel(data, header=None, engine="xlrd")
     else:
-        df = pd.read_excel(file_path, header=None)
+        df = pd.read_excel(file_path, header=None, engine="xlrd")
 
     required = {'Date', 'Type', 'OR #', 'Customer Name', 'PM', 'Amount', 'Check Amount'}
 
@@ -117,9 +117,9 @@ def convert_collections_to_df(file_path):
 def convert_receivables_to_df(file_path):
     if hasattr(file_path, "read"):
         data = BytesIO(file_path.read())
-        df = pd.read_excel(data, header=None)
+        df = pd.read_excel(data, header=None, engine="xlrd")
     else:
-        df = pd.read_excel(file_path, header=None)
+        df = pd.read_excel(file_path, header=None, engine="xlrd")
 
     required = {'Date', 'Type', 'SI #', 'Customer Name', 'Amount Due', 'Paid Amount', 'Balance'}
 
@@ -146,9 +146,9 @@ def convert_summary_to_df(file_path):
 
     if hasattr(file_path, "read"):
         data = BytesIO(file_path.read())
-        df = pd.read_excel(data, sheet_name=None, header=None)
+        df = pd.read_excel(data, sheet_name=None, header=None, engine="xlrd")
     else:
-        df = pd.read_excel(file_path, sheet_name=None, header=None)
+        df = pd.read_excel(file_path, sheet_name=None, header=None, engine="xlrd")
 
     # Read ALL sheets (sheet_name=None). 
     # Use header=None to manually find the correct header row later.
@@ -197,9 +197,9 @@ def convert_customer_masterlist_to_df(file_path):
 
     if hasattr(file_path, "read"):
         data = BytesIO(file_path.read())
-        df = pd.read_excel(data, sheet_name=None, header=None)
+        df = pd.read_excel(data, sheet_name=None, header=None, engine="xlrd")
     else:
-        df = pd.read_excel(file_path, sheet_name=None, header=None)
+        df = pd.read_excel(file_path, sheet_name=None, header=None, engine="xlrd")
 
     # Read ALL sheets, no header initially
     all_sheets = df
@@ -246,9 +246,9 @@ def process_raw_materials_stock_df(file_path):
 
     if hasattr(file_path, "read"):
         data = BytesIO(file_path.read())
-        df = pd.read_excel(data, sheet_name=0, header=None)
+        df = pd.read_excel(data, sheet_name=0, header=None, engine="xlrd")
     else:
-        df = pd.read_excel(file_path, sheet_name=0, header=None)
+        df = pd.read_excel(file_path, sheet_name=0, header=None, engine="xlrd")
 
     # Read ONLY the first sheet
     raw_df = df
