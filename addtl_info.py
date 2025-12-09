@@ -3,6 +3,7 @@ import math
 import os
 from rapidfuzz import process, fuzz
 import re
+from io import BytesIO
 
 def normalize(x):
     if x is None:
@@ -14,7 +15,13 @@ def normalize(x):
     return str(x).strip()
 
 def convert_sales_file_to_df(path):
-    raw = pd.read_excel(path, header=None, dtype=object)
+    if hasattr(path, "read"):
+        data = BytesIO(path.read())
+        df = pd.read_excel(data, header=None)
+    else:
+        df = pd.read_excel(path, header=None)
+
+    raw=df
 
     def row_matches(row):
         cells = [normalize(v) for v in row[:20]]
@@ -79,7 +86,12 @@ def convert_sales_file_to_df(path):
 import pandas as pd
 
 def convert_collections_to_df(file_path):
-    df = pd.read_excel(file_path, header=None)
+    if hasattr(file_path, "read"):
+        data = BytesIO(file_path.read())
+        df = pd.read_excel(data, header=None)
+    else:
+        df = pd.read_excel(file_path, header=None)
+
     required = {'Date', 'Type', 'OR #', 'Customer Name', 'PM', 'Amount', 'Check Amount'}
 
     for i, row in df.iterrows():
@@ -103,7 +115,12 @@ def convert_collections_to_df(file_path):
 
 
 def convert_receivables_to_df(file_path):
-    df = pd.read_excel(file_path, header=None)
+    if hasattr(file_path, "read"):
+        data = BytesIO(file_path.read())
+        df = pd.read_excel(data, header=None)
+    else:
+        df = pd.read_excel(file_path, header=None)
+
     required = {'Date', 'Type', 'SI #', 'Customer Name', 'Amount Due', 'Paid Amount', 'Balance'}
 
     for i, row in df.iterrows():
@@ -126,9 +143,16 @@ def convert_receivables_to_df(file_path):
     raise ValueError("Target headers not found in file")
 
 def convert_summary_to_df(file_path):
+
+    if hasattr(file_path, "read"):
+        data = BytesIO(file_path.read())
+        df = pd.read_excel(data, sheet_name=None, header=None)
+    else:
+        df = pd.read_excel(file_path, sheet_name=None, header=None)
+
     # Read ALL sheets (sheet_name=None). 
     # Use header=None to manually find the correct header row later.
-    all_sheets = pd.read_excel(file_path, sheet_name=None, header=None)
+    all_sheets = df
     
     processed_dfs = []
 
@@ -170,8 +194,15 @@ def convert_summary_to_df(file_path):
 import pandas as pd
 
 def convert_customer_masterlist_to_df(file_path):
+
+    if hasattr(file_path, "read"):
+        data = BytesIO(file_path.read())
+        df = pd.read_excel(data, sheet_name=None, header=None)
+    else:
+        df = pd.read_excel(file_path, sheet_name=None, header=None)
+
     # Read ALL sheets, no header initially
-    all_sheets = pd.read_excel(file_path, sheet_name=None, header=None)
+    all_sheets = df
     
     processed_dfs = []
 
@@ -212,8 +243,15 @@ def convert_customer_masterlist_to_df(file_path):
 
 
 def process_raw_materials_stock_df(file_path):
+
+    if hasattr(file_path, "read"):
+        data = BytesIO(file_path.read())
+        df = pd.read_excel(data, sheet_name=0, header=None)
+    else:
+        df = pd.read_excel(file_path, sheet_name=0, header=None)
+
     # Read ONLY the first sheet
-    raw_df = pd.read_excel(file_path, sheet_name=0, header=None)
+    raw_df = df
     
     # 1. Extract "Inventory Date" from metadata
     inventory_date = None
