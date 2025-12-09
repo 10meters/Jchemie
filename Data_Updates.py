@@ -21,9 +21,9 @@ st.set_page_config(
 st.markdown("### Upload Your Excel Sheet")
 
 # File uploader reacts immediately
-sheet = st.file_uploader("Upload your excel sheets here")
+sheet = st.file_uploader("Upload your excel sheets here", type=["xls", "xlsx"])
 sheet_options = ['Sales Order', "Summary Collections", "Customer Masterlist", "Accounts Receivable", "Summary per Item", "Stock Level"]
-sheet_type = st.selectbox("Select data type", sheet_options, type=["xls", "xlsx"])
+sheet_type = st.selectbox("Select data type", sheet_options)
 
 df = None
 
