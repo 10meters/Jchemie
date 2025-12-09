@@ -32,13 +32,13 @@ def read_session_csv(file_path):
 def read_excel_file(file_path_or_obj, **kwargs):
     """
     Reads an Excel file from file-like object or path.
-    Uses openpyxl for .xlsx to avoid xlrd issues.
+    Preserves engine usage as in original code (xlrd).
     """
     if hasattr(file_path_or_obj, "read"):
         buf = BytesIO(file_path_or_obj.read())
-        return pd.read_excel(buf, engine="openpyxl", **kwargs)
+        return pd.read_excel(buf, engine="xlrd", **kwargs)
     else:
-        return pd.read_excel(file_path_or_obj, engine="openpyxl", **kwargs)
+        return pd.read_excel(file_path_or_obj, engine="xlrd", **kwargs)
 
 # -------------------------------
 # Core Conversion Functions
@@ -65,22 +65,18 @@ def convert_sales_file_to_df(path):
     df = df[[c for c in df.columns if normalize(c) != ""]]
     df = df[["Date", "SO  #", "Customer Name", "Total Amount"]]
 
-    # Trim rows after first all-NaN
     all_nan_idx = df.isna().all(axis=1).to_numpy().nonzero()[0]
     if all_nan_idx.size > 0:
         df = df.iloc[:all_nan_idx[0]]
 
-    # Clean customer names
     df['Customer Name'] = df['Customer Name'].str.replace(
         r'^(?:\s*(?:-+|\*|\d+\s*-\s*)*)|(?:-+\s*)$', '', regex=True
     ).str.strip()
 
-    # Read customers from session
     customers = read_session_csv("data/CUSTOMERS_LIST.csv")
     if not customers.empty:
         customers["Business Name"] = customers["Business Name"].str.upper()
 
-        # Fuzzy match
         def fuzzy_match(name):
             match, score, _ = process.extractOne(name, customers["Business Name"], scorer=fuzz.ratio)
             return match if score >= 80 else None
