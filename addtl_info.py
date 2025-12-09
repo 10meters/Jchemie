@@ -87,16 +87,14 @@ def convert_sales_file_to_df(path):
     return df
 
 def convert_collections_to_df(file_path):
-<<<<<<< HEAD
-    df_raw = read_excel_file(file_path, header=None)
-=======
     if hasattr(file_path, "read"):
         data = BytesIO(file_path.read())
         df = pd.read_excel(data, header=None)
     else:
         df = pd.read_excel(file_path, header=None)
 
->>>>>>> parent of 6fd2038 (www)
+    df_raw = df
+
     required = {'Date', 'Type', 'OR #', 'Customer Name', 'PM', 'Amount', 'Check Amount'}
 
     for i, row in df_raw.iterrows():
@@ -114,16 +112,14 @@ def convert_collections_to_df(file_path):
     raise ValueError("Target headers not found in file")
 
 def convert_receivables_to_df(file_path):
-<<<<<<< HEAD
-    df_raw = read_excel_file(file_path, header=None)
-=======
     if hasattr(file_path, "read"):
         data = BytesIO(file_path.read())
         df = pd.read_excel(data, header=None)
     else:
         df = pd.read_excel(file_path, header=None)
+    
+    df_raw = df
 
->>>>>>> parent of 6fd2038 (www)
     required = {'Date', 'Type', 'SI #', 'Customer Name', 'Amount Due', 'Paid Amount', 'Balance'}
 
     for i, row in df_raw.iterrows():
@@ -140,9 +136,6 @@ def convert_receivables_to_df(file_path):
     raise ValueError("Target headers not found in file")
 
 def convert_summary_to_df(file_path):
-<<<<<<< HEAD
-    all_sheets = read_excel_file(file_path, sheet_name=None, header=None)
-=======
 
     if hasattr(file_path, "read"):
         data = BytesIO(file_path.read())
@@ -154,7 +147,6 @@ def convert_summary_to_df(file_path):
     # Use header=None to manually find the correct header row later.
     all_sheets = df
     
->>>>>>> parent of 6fd2038 (www)
     processed_dfs = []
 
     for sheet_name, raw_df in all_sheets.items():
@@ -175,9 +167,6 @@ def convert_summary_to_df(file_path):
     return pd.concat(processed_dfs, ignore_index=True)
 
 def convert_customer_masterlist_to_df(file_path):
-<<<<<<< HEAD
-    all_sheets = read_excel_file(file_path, sheet_name=None, header=None)
-=======
 
     if hasattr(file_path, "read"):
         data = BytesIO(file_path.read())
@@ -188,7 +177,6 @@ def convert_customer_masterlist_to_df(file_path):
     # Read ALL sheets, no header initially
     all_sheets = df
     
->>>>>>> parent of 6fd2038 (www)
     processed_dfs = []
 
     for sheet_name, raw_df in all_sheets.items():
@@ -210,9 +198,6 @@ def convert_customer_masterlist_to_df(file_path):
     return pd.concat(processed_dfs, ignore_index=True)
 
 def process_raw_materials_stock_df(file_path):
-<<<<<<< HEAD
-    raw_df = read_excel_file(file_path, sheet_name=0, header=None)
-=======
 
     if hasattr(file_path, "read"):
         data = BytesIO(file_path.read())
@@ -224,7 +209,6 @@ def process_raw_materials_stock_df(file_path):
     raw_df = df
     
     # 1. Extract "Inventory Date" from metadata
->>>>>>> parent of 6fd2038 (www)
     inventory_date = None
 
     for idx, row in raw_df.iloc[:20].iterrows():
