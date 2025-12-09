@@ -6,6 +6,7 @@ import os
 # Initialize login state
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
+    st.stop()
 
 if not st.session_state.logged_in:
     password = st.text_input("Enter password:", type="password")
@@ -16,6 +17,7 @@ if not st.session_state.logged_in:
         else:
             st.error("Incorrect password")
             st.stop()
+
 
 
 st.set_page_config(page_title="Add Sheets", page_icon="🏠")
