@@ -45,7 +45,14 @@ def read_excel_file(file_path_or_obj, **kwargs):
 # -------------------------------
 
 def convert_sales_file_to_df(path):
-    df_raw = read_excel_file(path, header=None)
+
+    if hasattr(path, "read"):
+        data = BytesIO(path.read())
+        df = pd.read_excel(data, header=None)
+    else:
+        df = pd.read_excel(path, header=None)
+
+    df_raw = df
 
     def row_matches(row):
         cells = [normalize(v) for v in row[:20]]
