@@ -12,17 +12,24 @@ st.set_page_config(layout="wide")
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-# Show login if not logged in
+# Callback function to check password
+def check_password():
+    if st.session_state.pw_input == st.secrets["APP_PASSWORD"]:
+        st.session_state.logged_in = True
+    else:
+        st.session_state.logged_in = False
+        st.error("Incorrect password")
+
+# Show login only if not logged in
 if not st.session_state.logged_in:
-    password = st.text_input("Enter password:", type="password")
-    if password:
-        if password == st.secrets["APP_PASSWORD"]:
-            st.session_state.logged_in = True
-            st.success("Login successful!")
-        else:
-            st.error("Incorrect password")
+    st.text_input(
+        "Enter password:",
+        type="password",
+        key="pw_input",
+        on_change=check_password
+    )
     if not st.session_state.logged_in:
-        st.stop()  # Only stop if login is still False
+        st.stop()
 
 # TITLE + Frequency dropdown
 title_col, freq_col = st.columns([3, 1])
