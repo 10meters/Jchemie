@@ -11,18 +11,17 @@ st.set_page_config(layout="wide")
 # Initialize login state
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
-    st.stop()
 
+# Show login if not logged in
 if not st.session_state.logged_in:
     password = st.text_input("Enter password:", type="password")
     if password:
         if password == st.secrets["APP_PASSWORD"]:
             st.session_state.logged_in = True
-            st.success("Login successful! Navigate to other pages via the sidebar.")
+            st.success("Login successful!")
         else:
             st.error("Incorrect password")
-            st.stop()
-
+    st.stop()  # Stop rendering the rest of the page
 
 # TITLE + Frequency dropdown
 title_col, freq_col = st.columns([3, 1])
